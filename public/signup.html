@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up - Travel with Kabir</title>
+    <link rel="icon" href="/vite.svg" />
+    <script>
+      document.addEventListener('DOMContentLoaded', function(){
+        document.body.style.margin='0';
+        document.body.style.fontFamily='system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
+      });
+    </script>
+    <style>
+      :root{--brand:#FFF8C9;--text:#111827}
+      body{color:var(--text)}
+      .container{max-width:1120px;margin:0 auto;padding:2rem}
+      .card{max-width:520px;margin:3rem auto;border:1px solid #e5e7eb;border-radius:.75rem;box-shadow:0 1px 2px rgb(0 0 0 / .05);padding:1.5rem}
+      .title{font-weight:800;font-size:1.5rem;margin:0;color:var(--text);text-align:center}
+      .muted{color:var(--text);opacity:.7;font-size:.9rem;text-align:center;margin:.25rem 0 1rem}
+      .label{font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:.25rem}
+      .row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+      .input{display:flex;align-items:center;gap:.5rem;border:1px solid #e5e7eb;border-radius:.5rem;padding:.5rem .75rem}
+      .input input{border:0;outline:0;width:100%;font-size:.95rem;color:var(--text)}
+      .btn{width:100%;background:var(--brand);color:var(--text);font-weight:800;border:1px solid rgba(0,0,0,.06);border-radius:.5rem;padding:.7rem .85rem;cursor:pointer;box-shadow:0 1px 2px rgb(0 0 0 / .06)}
+      .btn:hover{opacity:.95}
+      .link{color:var(--text);font-weight:700;text-decoration:underline}
+      header{position:sticky;top:0;border-bottom:1px solid #e5e7eb;background:#fff}
+      header .rowh{display:flex;align-items:center;justify-content:space-between;height:64px}
+      header a{color:var(--text);text-decoration:none;font-weight:700}
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container rowh">
+        <a href="/">Travel with Kabir</a>
+        <nav><a href="/login.html">Login</a></nav>
+      </div>
+    </header>
+    <main class="container">
+      <div class="card">
+        <h1 class="title">Create your account</h1>
+        <p class="muted">Join us to manage your bookings and trips</p>
+        <form>
+          <div class="row">
+            <div>
+              <div class="label">Full Name</div>
+              <div class="input"><input type="text" placeholder="Your name" required /></div>
+            </div>
+            <div>
+              <div class="label">Phone</div>
+              <div class="input"><input type="tel" placeholder="03xx-xxxxxxx" required /></div>
+            </div>
+          </div>
+          <div style="margin-top:.75rem" class="row">
+            <div>
+              <div class="label">Email</div>
+              <div class="input"><input type="email" placeholder="you@example.com" /></div>
+            </div>
+            <div>
+              <div class="label">Start Password</div>
+              <div class="input"><input type="password" placeholder="••••••••" required /></div>
+            </div>
+          </div>
+          <div style="margin-top:.75rem">
+            <div class="label">Confirm Password</div>
+            <div class="input"><input type="password" placeholder="••••••••" required /></div>
+          </div>
+          <div style="margin-top:1rem">
+            <button type="button" class="btn">Create account</button>
+          </div>
+        </form>
+        <p class="muted" style="margin-top:1rem">Already have an account? <a class="link" href="/login.html">Sign in</a></p>
+      </div>
+    </main>
+  </body>
+</html>

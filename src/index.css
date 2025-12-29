@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root, :host {
+  /* Tailwind v4 theme tokens */
+  /* Single brand color scheme */
+  --brand: #FFF8C9; /* primary brand (light) */
+  --brand-contrast: #111827; /* dark text for readability */
+  /* Map Tailwind brand tokens to our single brand */
+  --color-brand-50: #FFFEF4;
+  --color-brand-100: #FFFCE8;
+  --color-brand-200: #FFF9D9;
+  --color-brand-300: #FFF6CE;
+  --color-brand-400: #FFF4C6;
+  --color-brand-500: var(--brand);
+  --color-brand-600: #F2E7BC;
+  --color-brand-700: #E6DCB5;
+  --color-brand-800: #D7CCA3;
+  --color-brand-900: #C9BD92;
+  --color-brand: var(--brand);
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light;
+  color: #213547;
+  background-color: #ffffff;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility: Arial Black font for hero heading */
+.font-arial-black {
+  font-family: "Arial Black", Arial Black, Gadget, Arial, sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+/* Unified text color across the site */
+.text-gray-900, .text-gray-800, .text-gray-700, .text-gray-600, body, p, h1, h2, h3, h4, h5, h6, a, span, li, label {
+  color: #1f2937 !important; /* slate-800 */
+}
+
+/* Primary brand button */
+.btn-gradient {
+  background: var(--brand);
+  color: var(--brand-contrast);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.btn-gradient:hover { opacity: 0.95; }
+
+/* Brand text utility */
+.text-gradient-theme { color: var(--brand) !important; }
+
+a {
+  font-weight: 500;
+  color: #1f2937;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #1f2937;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
