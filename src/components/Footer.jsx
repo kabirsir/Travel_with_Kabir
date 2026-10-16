@@ -1,4 +1,4 @@
-import heroBg from "../assets/b-g.jpg";
+import heroBg from "../assets/M-B-HD.png";
 export default function Footer() {
   return (
     <footer id="contact" className="bg-transparent">
@@ -10,22 +10,20 @@ export default function Footer() {
             backgroundImage: `url(${heroBg})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            filter: "blur(12px)",
-            transform: "scale(1.05)",
           }}
         />
         <div className="absolute inset-0" style={{ background: 'rgba(255, 248, 201, 0.25)' }} />
         <div className="relative grid grid-cols-1 gap-10 md:grid-cols-3">
           <div>
-            <div className="mb-3 text-2xl font-extrabold text-gray-900">Travel with Kabir<span className="ml-1 align-top text-xs font-bold">®</span> <span className="text-sm font-semibold text-gray-500">Travels</span></div>
-            <p className="text-sm leading-6 text-gray-700">
+            <div className="mb-3 text-2xl font-extrabold text-theme-contrast">Travel with Kabir<span className="ml-1 align-top text-xs font-bold">®</span> <span className="text-sm font-semibold text-theme-contrast opacity-90">Travels</span></div>
+            <p className="text-sm leading-6 text-theme-contrast">
               At Travel with Kabir, we focus on personalized and meaningful travel experiences. Every trip is
               planned with passion and care for our clients.
             </p>
           </div>
           <div>
-            <h4 className="mb-3 text-lg font-bold text-gray-900">QUICK LINKS</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <h4 className="mb-3 text-lg font-bold text-theme-contrast">QUICK LINKS</h4>
+            <ul className="space-y-2 text-sm text-theme-contrast">
               <li><a href="#home" className="hover:text-brand-700">Home</a></li>
               <li><a href="#about" className="hover:text-brand-700">About Us</a></li>
               <li><a href="#destinations" className="hover:text-brand-700">Domestic Tours</a></li>
@@ -34,8 +32,8 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="mb-3 text-lg font-bold text-gray-900">CONTACT US</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <h4 className="mb-3 text-lg font-bold text-theme-contrast">CONTACT US</h4>
+            <ul className="space-y-2 text-sm text-theme-contrast">
               <li>03174600575</li>
               <li>03432201058</li>
               <li><a href="mailto:info@travelwithkabir.pk" className="hover:text-brand-700">info@travelwithkabir.pk</a></li>
@@ -63,7 +61,7 @@ export default function Footer() {
         </div>
       </div>
       <div
-        className="py-3 text-center text-xs font-semibold"
+        className="py-3 text-center text-xs font-semibold text-theme-contrast"
         style={{ backgroundImage: 'linear-gradient(90deg, var(--twk-light-green), var(--twk-light-blue))' }}
       >
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-1 px-4 sm:flex-row sm:gap-3">

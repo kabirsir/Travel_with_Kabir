@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import heroBg from '../assets/b-g.jpg';
+import heroBg from '../assets/M-B-HD.png';
 import hunzaImg from '../assets/gal1.jpg';
 import hunzaImg1 from '../assets/gal2.jpg';
 import hunzaImg2 from '../assets/gal3.jpg';
@@ -62,8 +62,6 @@ const Gallery = () => {
           backgroundImage: `url(${heroBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          filter: 'blur(8px)',
-          transform: 'scale(1.05)',
         }}
       />
       <div

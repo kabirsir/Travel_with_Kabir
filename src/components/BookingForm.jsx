@@ -22,6 +22,15 @@ export default function BookingForm({ place, onSuccess }) {
   async function submit(e) {
     e.preventDefault();
     if (!form.fullName || !form.phone || !form.seats || !form.startDate) return;
+    
+    const selectedDate = new Date(form.startDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      alert("Cannot book for past dates. Please select a future date.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       const payload = {
@@ -62,8 +71,8 @@ export default function BookingForm({ place, onSuccess }) {
         <input name="phone" value={form.phone} onChange={updateField} required className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
       </div>
       <div className="sm:col-span-1">
-        <label className="mb-1 block text-sm font-medium text-gray-700">Email (optional)</label>
-        <input type="email" name="email" value={form.email} onChange={updateField} className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
+        <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" name="email" value={form.email} onChange={updateField} required className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
       </div>
       <div className="sm:col-span-1">
         <label className="mb-1 block text-sm font-medium text-gray-700">Number of Seats</label>
@@ -71,7 +80,7 @@ export default function BookingForm({ place, onSuccess }) {
       </div>
       <div className="sm:col-span-1">
         <label className="mb-1 block text-sm font-medium text-gray-700">Start Date</label>
-        <input type="date" name="startDate" value={form.startDate} onChange={updateField} required className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
+        <input type="date" min={new Date().toISOString().split("T")[0]} name="startDate" value={form.startDate} onChange={updateField} required className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
       </div>
       <div className="sm:col-span-2">
         <button type="submit" disabled={submitting} className="btn-gradient w-full rounded-md px-4 py-2 text-sm font-semibold shadow disabled:opacity-60">

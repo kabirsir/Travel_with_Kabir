@@ -1,9 +1,23 @@
-import { Menu, X } from "lucide-react";
+import { Menu, X, UserCircle } from "lucide-react";
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import supabase from '../lib/supabaseClient';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (mounted) setSession(session);
+    })();
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
+      if (mounted) setSession(sess);
+    });
+    return () => { mounted = false; sub.subscription?.unsubscribe?.(); };
+  }, []);
 
   return (
     <header className="absolute top-0 z-50 w-full border-0 bg-transparent">
@@ -39,7 +53,13 @@ export default function Navbar() {
         </nav>
         <div className="hidden items-center gap-2 md:flex justify-self-end">
           <a href="#destinations" className="btn-gradient rounded-md px-3 py-2 text-sm font-semibold shadow">Book Now</a>
-          <Link to="/login" className="rounded-md border px-3 py-2 text-sm font-semibold hover:bg-gray-50 bg-white inline-block">Login</Link>
+          {session ? (
+            <Link to="/admin" className="rounded-full bg-white border border-gray-200 p-1.5 text-gray-700 hover:bg-gray-50 hover:text-[#1f2937] transition-colors shadow-sm" title="Admin Dashboard">
+              <UserCircle size={24} />
+            </Link>
+          ) : (
+            <Link to="/login" className="rounded-md border px-3 py-2 text-sm font-semibold hover:bg-gray-50 bg-white inline-block">Login</Link>
+          )}
         </div>
         <button
           className="inline-flex items-center gap-2 rounded-md p-2 text-gray-700 md:hidden justify-self-end z-50"
@@ -61,7 +81,13 @@ export default function Navbar() {
           </nav>
           <div className="flex flex-col gap-3 mt-4">
             <a href="#destinations" onClick={() => setIsMenuOpen(false)} className="btn-gradient rounded-md px-3 py-3 text-center font-semibold shadow">Book Now</a>
-            <Link to="/login" onClick={() => setIsMenuOpen(false)} className="rounded-md border px-3 py-3 text-center font-semibold hover:bg-gray-50 bg-white inline-block">Login</Link>
+            {session ? (
+              <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="rounded-md border px-3 py-3 text-center font-semibold hover:bg-gray-50 bg-white flex items-center justify-center gap-2">
+                <UserCircle size={20} /> Admin Dashboard
+              </Link>
+            ) : (
+              <Link to="/login" onClick={() => setIsMenuOpen(false)} className="rounded-md border px-3 py-3 text-center font-semibold hover:bg-gray-50 bg-white inline-block">Login</Link>
+            )}
           </div>
         </div>
       )}

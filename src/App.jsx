@@ -12,6 +12,8 @@ import { places as PLACES } from './data/places.js'
 import Admin from './pages/Admin.jsx'
 import Login from './components/Login.jsx'
 import AdminLogin from './pages/AdminLogin.jsx'
+import CarBooking from './pages/CarBooking.jsx'
+import CabinBooking from './pages/CabinBooking.jsx'
 
 function Home() {
   const [selected, setSelected] = useState(null)
@@ -35,6 +37,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/booking" element={<Booking />} />
+            <Route path="/car-booking" element={<CarBooking />} />
+            <Route path="/cabin-booking" element={<CabinBooking />} />
             <Route path="/booking/:id" element={<BookingConfirmation />} />
             <Route path="/login" element={<Login />} />
             <Route path="/admin-login" element={<AdminLogin />} />

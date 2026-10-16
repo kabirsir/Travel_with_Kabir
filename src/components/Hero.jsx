@@ -1,5 +1,5 @@
 import { Mountain, MapPin } from "lucide-react";
-import heroBg from "../assets/b-g.jpg";
+import heroBg from "../assets/M-B-HD.png";
 
 export default function Hero() {
   return (
@@ -16,10 +16,6 @@ export default function Hero() {
           backgroundSize: "cover",
           backgroundPosition: "center top",
           backgroundAttachment: 'fixed',
-          top: -24,
-          left: -24,
-          right: -24,
-          bottom: -24,
         }}
       />
       <div className="relative mx-auto max-w-7xl px-4 pt-[80px] pb-8 text-center sm:px-6 lg:px-8">
@@ -27,10 +23,10 @@ export default function Hero() {
           <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1 text-xs font-medium shadow-sm backdrop-blur">
             <Mountain size={16} /> Explore Pakistan's North
           </div>
-          <h1 className="font-arial-black text-4xl tracking-tight sm:text-5xl">
-            <span className="text-gradient-theme">Travel with Kabir</span>
+          <h1 className="font-arial-black text-4xl tracking-tight sm:text-5xl text-center">
+            <span style={{ color: "var(--brand-contrast)", textShadow: "2px 2px 10px rgba(255, 248, 201, 0.8), -1px -1px 4px rgba(255,255,255,0.5)" }}>Travel with Kabir</span>
           </h1>
-          <p className="max-w-2xl text-base sm:text-lg">
+          <p className="max-w-2xl text-base sm:text-lg font-bold">
             Discover breathtaking valleys, alpine meadows, crystal lakes, and adventure—book your
             seats for curated trips to the most iconic destinations in the Northern Areas of Pakistan.
           </p>

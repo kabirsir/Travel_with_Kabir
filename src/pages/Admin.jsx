@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import supabase from '../lib/supabaseClient';
+import { sendStatusUpdateEmail } from '../lib/notifyEmail';
 
 function StatusBadge({ status }) {
   const cls = status === 'confirmed'
@@ -23,13 +24,8 @@ function SectionHeader({ title, count, right }) {
 
 export default function Admin() {
   const [session, setSession] = useState(null);
-  const [authEmail, setAuthEmail] = useState('');
-  const [authPassword, setAuthPassword] = useState('');
-  const [authError, setAuthError] = useState('');
-  const [signingIn, setSigningIn] = useState(false);
-  const [authMode] = useState('signin');
-  const [signupInfo] = useState('');
-  const [tab, setTab] = useState('bookings');
+
+  const [tab, setTab] = useState('bus-bookings');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -50,20 +46,6 @@ export default function Admin() {
     });
     return () => { mounted = false; sub.subscription?.unsubscribe?.(); };
   }, []);
-
-  async function handleSignIn(e) {
-    e?.preventDefault();
-    setAuthError('');
-    setSigningIn(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password: authPassword });
-      if (error) throw error;
-    } catch (err) {
-      setAuthError(err.message || 'Failed to sign in');
-    } finally {
-      setSigningIn(false);
-    }
-  }
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -94,8 +76,19 @@ export default function Admin() {
     setLoading(true);
     setError('');
     try {
-      const { error: e } = await supabase.from('bookings').update({ status: next }).eq('id', id);
+      const { data, error: e } = await supabase.from('bookings').update({ status: next }).eq('id', id).select('*');
       if (e) throw e;
+      if (!data || data.length === 0) {
+        throw new Error('Supabase blocked the update because of a missing Row Level Security (RLS) UPDATE policy in your database!');
+      }
+      
+      const booking = bookings.find(b => b.id === id);
+      if (booking && booking.email) {
+        try {
+          await sendStatusUpdateEmail(booking, next);
+        } catch (_) {}
+      }
+
       await loadBookings();
     } catch (err) {
       setError(err.message || 'Failed to update status');
@@ -104,23 +97,34 @@ export default function Admin() {
     }
   }
 
-  async function deleteBooking(id) {
-    if (!confirm('Delete this booking? This cannot be undone.')) return;
-    setLoading(true);
-    setError('');
-    try {
-      const { error: e } = await supabase.from('bookings').delete().eq('id', id);
-      if (e) throw e;
-      await loadBookings();
-    } catch (err) {
-      setError(err.message || 'Failed to delete booking');
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const filteredBookings = useMemo(() => {
     let list = bookings;
+    
+    // Type Filter
+    if (tab === 'car-bookings') {
+      list = list.filter(b => {
+        try { 
+          const j = typeof b.notes === 'object' ? (b.notes || {}) : JSON.parse(b.notes || '{}'); 
+          return j.is_car_booking; 
+        } catch(_) { return false; }
+      });
+    } else if (tab === 'cabin-bookings') {
+      list = list.filter(b => {
+        try { 
+          const j = typeof b.notes === 'object' ? (b.notes || {}) : JSON.parse(b.notes || '{}'); 
+          return j.is_cabin_booking; 
+        } catch(_) { return false; }
+      });
+    } else if (tab === 'bus-bookings') {
+      list = list.filter(b => {
+        try { 
+          const j = typeof b.notes === 'object' ? (b.notes || {}) : JSON.parse(b.notes || '{}'); 
+          return !j.is_car_booking && !j.is_cabin_booking; 
+        } catch(_) { return true; }
+      });
+    }
+
     if (statusFilter !== 'all') list = list.filter(b => b.status === statusFilter);
     if (q) {
       const qq = q.toLowerCase();
@@ -132,7 +136,7 @@ export default function Admin() {
       );
     }
     return list;
-  }, [bookings, q, statusFilter]);
+  }, [bookings, q, statusFilter, tab]);
 
   const users = useMemo(() => {
     // Derive users from bookings until an auth user list exists
@@ -184,12 +188,14 @@ export default function Admin() {
 
       {session && session.user?.email?.toLowerCase() === ADMIN_EMAIL && (
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-2">
-          <div className="flex gap-2">
-            <button onClick={() => setTab('bookings')} className={`rounded-md px-3 py-1.5 text-sm font-medium border ${tab === 'bookings' ? 'bg-[var(--brand)] text-white border-transparent' : 'bg-white hover:bg-gray-50 text-white'}`}>Bookings</button>
-            <button onClick={() => setTab('users')} className={`rounded-md px-3 py-1.5 text-sm font-medium border ${tab === 'users' ? 'bg-[var(--brand)] text-white border-transparent' : 'bg-white hover:bg-gray-50 text-white'}`}>Users</button>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setTab('bus-bookings')} className={`rounded-md px-3 py-1.5 text-sm font-medium border transition-colors ${tab === 'bus-bookings' ? '!bg-[#1f2937] !text-white border-transparent' : '!bg-white hover:!bg-gray-100 !text-gray-600 hover:!text-gray-900 border-gray-300'}`}>Bus Bookings</button>
+            <button onClick={() => setTab('cabin-bookings')} className={`rounded-md px-3 py-1.5 text-sm font-medium border transition-colors ${tab === 'cabin-bookings' ? '!bg-[#1f2937] !text-white border-transparent' : '!bg-white hover:!bg-gray-100 !text-gray-600 hover:!text-gray-900 border-gray-300'}`}>Cabin Bookings</button>
+            <button onClick={() => setTab('car-bookings')} className={`rounded-md px-3 py-1.5 text-sm font-medium border transition-colors ${tab === 'car-bookings' ? '!bg-[#1f2937] !text-white border-transparent' : '!bg-white hover:!bg-gray-100 !text-gray-600 hover:!text-gray-900 border-gray-300'}`}>Car Bookings</button>
+            <button onClick={() => setTab('users')} className={`rounded-md px-3 py-1.5 text-sm font-medium border transition-colors ${tab === 'users' ? '!bg-[#1f2937] !text-white border-transparent' : '!bg-white hover:!bg-gray-100 !text-gray-600 hover:!text-gray-900 border-gray-300'}`}>Users</button>
           </div>
           <div className="flex flex-col sm:flex-row sm:ml-auto items-stretch sm:items-center gap-2 mt-2 sm:mt-0">
-            {tab === 'bookings' && (
+            {(tab === 'bus-bookings' || tab === 'car-bookings' || tab === 'cabin-bookings') && (
               <>
                 <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search..." className="rounded-md border px-3 py-1.5 text-sm w-full sm:w-auto" />
                 <div className="flex gap-2">
@@ -207,9 +213,9 @@ export default function Admin() {
         </div>
       )}
 
-      {session && session.user?.email?.toLowerCase() === ADMIN_EMAIL && tab === 'bookings' && (
+      {session && session.user?.email?.toLowerCase() === ADMIN_EMAIL && (tab === 'bus-bookings' || tab === 'car-bookings' || tab === 'cabin-bookings') && (
         <div className="space-y-3">
-          <SectionHeader title="All Bookings" count={filteredBookings.length} />
+          <SectionHeader title={tab === 'car-bookings' ? "Car Bookings" : tab === 'cabin-bookings' ? "Cabin Bookings" : "Bus Bookings"} count={filteredBookings.length} />
           <div className="overflow-x-auto rounded-lg border">
             <table className="min-w-full divide-y divide-gray-200 bg-white">
               <thead className="bg-gray-50">
@@ -236,13 +242,22 @@ export default function Admin() {
                       <div className="font-medium">{b.place_id}</div>
                       <div className="text-xs text-gray-500">{b.start_date}</div>
                     </td>
-                    <td className="px-3 py-2 text-sm text-gray-700">{b.seats}</td>
+                    <td className="px-3 py-2 text-sm text-gray-700">
+                      <div>{b.seats}</div>
+                      {(() => {
+                        try {
+                          const j = typeof b.notes === 'object' ? (b.notes || {}) : JSON.parse(b.notes || '{}');
+                          if (j.is_car_booking) return <div className="text-xs font-semibold mt-1" style={{ color: '#10b981' }}>🚗 {j.car_type}</div>;
+                          if (j.is_cabin_booking) return <div className="text-xs font-semibold mt-1" style={{ color: '#6366f1' }}>🚐 Cabin</div>;
+                        } catch(_) {}
+                        return null;
+                      })()}
+                    </td>
                     <td className="px-3 py-2 text-sm"><StatusBadge status={b.status} /></td>
                     <td className="px-3 py-2 text-sm">
                       <div className="flex items-center gap-2">
                         <button disabled={loading || b.status === 'confirmed'} onClick={() => updateStatus(b.id, 'confirmed')} className="rounded-md px-3 py-1 text-xs font-semibold text-white disabled:opacity-60 bg-green-600 hover:bg-green-700">Accept</button>
                         <button disabled={loading || b.status === 'cancelled'} onClick={() => updateStatus(b.id, 'cancelled')} className="rounded-md px-3 py-1 text-xs font-semibold text-white disabled:opacity-60 bg-amber-600 hover:bg-amber-700">Cancel</button>
-                        <button disabled={loading} onClick={() => deleteBooking(b.id)} className="rounded-md px-3 py-1 text-xs font-semibold text-white disabled:opacity-60 bg-red-600 hover:bg-red-700">Delete</button>
                       </div>
                     </td>
                   </tr>

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import supabase from '../lib/supabaseClient';
 import { places as PLACES } from '../data/places';
 
-const BUS_CAPACITY = 32; // 8 rows x (2 seats + aisle + 2 seats)
+const BUS_CAPACITY = 24; // 8 rows x (1 seat + aisle + 2 seats)
 const ROWS = 8;
 
 function useQuery() {
@@ -52,7 +52,11 @@ export default function Booking() {
         for (const b of data || []) {
           let numbers = undefined;
           if (b?.notes) {
-            try { const j = JSON.parse(b.notes); numbers = j?.seat_numbers; } catch (_) { }
+            try { 
+              const j = typeof b.notes === 'object' ? b.notes : JSON.parse(b.notes); 
+              if (j.is_car_booking || j.is_cabin_booking) continue;
+              numbers = j?.seat_numbers; 
+            } catch (_) { }
           }
           if (Array.isArray(numbers) && numbers.length) {
             for (const n of numbers) occupied.add(Number(n));
@@ -93,7 +97,19 @@ export default function Booking() {
 
   async function submitBooking(e) {
     e?.preventDefault();
-    if (!placeId || !startDate || !fullName || !phone || selectedSeats.length === 0) return;
+    if (!placeId || !startDate || !fullName || !phone || !email || selectedSeats.length === 0) {
+      setError('Please fill in all details and select at least one seat before confirming.');
+      return;
+    }
+    
+    const selectedDate = new Date(startDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      setError('Cannot book for past dates. Please select a future date.');
+      return;
+    }
+
     setSubmitting(true);
     setError('');
     try {
@@ -109,7 +125,11 @@ export default function Booking() {
       for (const b of latest || []) {
         let numbers = undefined;
         if (b?.notes) {
-          try { const j = JSON.parse(b.notes); numbers = j?.seat_numbers; } catch (_) { }
+          try { 
+            const j = typeof b.notes === 'object' ? b.notes : JSON.parse(b.notes); 
+            if (j.is_car_booking || j.is_cabin_booking) continue;
+            numbers = j?.seat_numbers; 
+          } catch (_) { }
         }
         if (Array.isArray(numbers) && numbers.length) {
           for (const n of numbers) stillTaken.add(Number(n));
@@ -164,7 +184,7 @@ export default function Booking() {
           </div>
           <div className="mb-3">
             <label className="block text-sm font-medium mb-1">Start Date</label>
-            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full rounded-md border px-3 py-2 text-sm" />
+            <input type="date" value={startDate} min={new Date().toISOString().split("T")[0]} onChange={e => { setStartDate(e.target.value); setError(''); }} className="w-full rounded-md border px-3 py-2 text-sm" />
           </div>
 
           <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -177,14 +197,14 @@ export default function Booking() {
               <input value={phone} onChange={e => setPhone(e.target.value)} className="w-full rounded-md border px-3 py-2 text-sm" />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium mb-1">Email (optional)</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full rounded-md border px-3 py-2 text-sm" />
+              <label className="block text-sm font-medium mb-1">Email</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full rounded-md border px-3 py-2 text-sm" />
             </div>
           </div>
 
-          <button disabled={submitting || !placeId || !startDate || !fullName || !phone || selectedSeats.length === 0}
+          <button disabled={submitting}
             onClick={submitBooking}
-            className="w-full rounded-md px-4 py-2 text-sm font-semibold shadow disabled:opacity-60 bg-[var(--brand)] text-white border border-transparent hover:opacity-90">
+            className="w-full rounded-md px-4 py-2 text-sm font-bold shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed btn-gradient hover:-translate-y-0.5 hover:shadow-[var(--brand)]/40 text-gray-900 border border-gray-200">
             {submitting ? 'Submitting...' : 'Confirm Booking'}
           </button>
         </div>
@@ -199,11 +219,11 @@ export default function Booking() {
           </div>
           <div className="space-y-2">
             {Array.from({ length: ROWS }, (_, r) => {
-              const s1 = r * 4 + 1;
-              const rowSeats = [s1, s1 + 1, s1 + 2, s1 + 3];
+              const s1 = r * 3 + 1;
+              const rowSeats = [s1, s1 + 1, s1 + 2];
               return (
-                <div key={r} className="grid grid-cols-5 gap-2 items-center">
-                  {rowSeats.slice(0, 2).map(seat => {
+                <div key={r} className="grid grid-cols-4 gap-2 items-center w-full max-w-[240px] mx-auto">
+                  {rowSeats.slice(0, 1).map(seat => {
                     const taken = takenSeats.has(seat);
                     const selected = selectedSeats.includes(seat);
                     const style = taken
@@ -226,7 +246,7 @@ export default function Booking() {
                     )
                   })}
                   <div aria-hidden className="" />
-                  {rowSeats.slice(2, 4).map(seat => {
+                  {rowSeats.slice(1, 3).map(seat => {
                     const taken = takenSeats.has(seat);
                     const selected = selectedSeats.includes(seat);
                     const style = taken
